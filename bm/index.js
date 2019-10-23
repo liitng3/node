@@ -3,9 +3,54 @@ const http=require("http");
 const fs=require("fs"); 
 const path=require("path");  
 const querystring=require("querystring");
+var sessions={};
 var server=http.createServer(function(req,res){
     var urlObj=url.parse(req.url,true);    
     var pathName=urlObj.pathname;
+    if(pathName=='/'){
+        var cookie = req.headers["cookie"];
+        console.log(cookie)
+        if(cookie == undefined) {
+            var htmlPath=path.join(__dirname,"/login.html"); 
+            fs.readFile(htmlPath,function(err,data){
+                res.writeHead(200,{"Content-Type":"text/html"});
+                res.write(data.toString());
+                res.end();
+            });
+        }
+        else{
+           
+            var cookieArr=cookie.split(";");
+            var cookieObj={};
+            for(var i=0;i<cookieArr.length;i++){
+                var cookiePair=cookieArr[i].split("=");
+                cookieObj[cookiePair[0].trim()]=cookiePair[1];
+            }
+            var sessionId=cookieObj.sessionId;
+            console.log(sessions);
+            for(var key in sessions){
+                if(key==sessionId){
+                    var session=sessions[key];
+                    if((new Date()).getTime()<session.exipire){
+                        var htmlPath=path.join(__dirname,"/list.html"); 
+                        fs.readFile(htmlPath,function(err,data){
+                            res.writeHead(200,{"Content-Type":"text/html"});
+                            res.write(data.toString());
+                            res.end();
+                        });
+                    }
+                    else{
+                        var htmlPath=path.join(__dirname,"/login.html"); 
+                        fs.readFile(htmlPath,function(err,data){
+                            res.writeHead(200,{"Content-Type":"text/html"});
+                            res.write(data.toString());
+                            res.end();
+                        }); 
+                    }
+                }
+            }
+        }
+    }
     if(pathName=='/text'){
         var chapterStr=JSON.stringify(chapterList); 
         res.end(chapterStr);
@@ -47,17 +92,26 @@ var server=http.createServer(function(req,res){
         req.on("end",function(){
             var dataObj=querystring.parse(datastr);
             if(dataObj.username == userList[0].username && dataObj.pwd == userList[0].pwd) {
+                var session={
+                    sessionId:(new Date()).getTime()+Math.random(),
+                    exipire:(new Date()).getTime()+18000000000000000000,
+                    userName:dataObj.username
+                }
+                sessions[session.sessionId]=session;
+                res.setHeader("Set-Cookie", "sessionId="+session.sessionId)
                 var htmlPath=path.join(__dirname,"/list.html"); 
                 fs.readFile(htmlPath,function(err,data){
                     res.writeHead(200,{"Content-Type":"text/html"});
                     res.write(data.toString());
                 });
+                
             }
             else{
                 var str="Incorrect user name or password";
                 res.write(str);
                 res.end();
-            }           
+            }    
+                   
         });
     }
     else if(pathName=='/listmanager'){
