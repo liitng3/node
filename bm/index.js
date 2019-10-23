@@ -5,7 +5,7 @@ const path=require("path");
 const querystring=require("querystring");
 var server=http.createServer(function(req,res){
     var urlObj=url.parse(req.url,true);    
-    var pathName=urlObj.pathname; 
+    var pathName=urlObj.pathname;
     if(pathName=='/text'){
         var chapterStr=JSON.stringify(chapterList); 
         res.end(chapterStr);
@@ -187,5 +187,5 @@ var chapterList = [
     }
 ];
 var userList = [
-    {username: "lt", pwd: "123"}
+    {username: "admin", pwd: "admin"}
 ]
