@@ -84,7 +84,7 @@ var server=http.createServer(function(req,res){
             res.end();
         });
     }
-    else if(pathName=='/confirm'){
+    else if(pathName=='/listmanager' && req.method=='POST'){
         var datastr="";
         req.on("data",function(chunk){
             datastr+=chunk;

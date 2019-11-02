@@ -220,8 +220,8 @@
     }
     $.get("/text", function(data) {
         var textlist = JSON.parse(data);        //data为json类型的字符串
-        console.log(textlist)
-        console.log(typeof(textlist));
+        // console.log(textlist)
+        // console.log(typeof(textlist));
         for(var i = 0; i < textlist.length; i++) {
             var str='<tr><td>'+textlist[i].chapterId+'</td><td>'+textlist[i].chapterName+'</td><td>'+textlist[i].views+'</td><td>213</td></tr>';
             $(".table").append(str);
